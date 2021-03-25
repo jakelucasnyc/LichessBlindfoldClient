@@ -1,9 +1,10 @@
-from api import API
+from apiGet import APIGet
 import asyncio
 import aiohttp
 import logging
+from cli import CLI
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
@@ -17,10 +18,20 @@ async def run():
 
 	async with aiohttp.ClientSession() as session:
 
-		api = API(authHeader)
+		apiGet = APIGet(authHeader, loop)
+		cli = CLI(loop)
+
+		events = loop.create_task(apiGet.handleEvents(session))#listening for events
+		# await events
+
+		cli.getInput = loop.create_task(cli.input()) #allowing us to enter a command before we get an event
+		try:
+			await asyncio.gather(events, cli.getInput)
+		except asyncio.CancelledError:
+			log.debug('\ninput cancelled outside self.input\n')
+
 		# print(token)
-		events = loop.create_task(api.handleEvents(session, loop))
-		await events
+
 
 
 
@@ -35,4 +46,5 @@ if __name__ == '__main__':
 	except Exception as e:
 		log.error(e)
 	finally:
+		loop.run_until_complete(loop.shutdown_asyncgens())
 		loop.close()

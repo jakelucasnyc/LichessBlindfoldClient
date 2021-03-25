@@ -1,24 +1,23 @@
 import logging
 import aiohttp
 import asyncio
+import json
 # from play import Play
-# from parser import Parser
-# from cli import CLI
+from cli import CLI
 
 log = logging.getLogger(__name__)
-class API:
+class APIGet:
 
-	def __init__(self, authHeader):
+	def __init__(self, authHeader, loop):
 		self.authHeader = authHeader
+		self.loop = loop
+		self.cli = CLI(self.loop)
 
-	async def test(self):
-		print('helloworld')
-
-	async def _getEvents(self, session, loop):
+	async def _getEvents(self, session):
+		log.info('Listening For Incoming Events')
 		async with session.get('https://lichess.org/api/stream/event', headers=self.authHeader) as response:
 			log.debug('Event Status:' + str(response.status))
-			log.info('Listening For Events')
-			await loop.create_task(self.test())
+			
 
 			
 			async for line in response.content:
@@ -27,11 +26,14 @@ class API:
 				# print(line)
 
 
-	async def handleEvents(self, session, loop):
+	async def handleEvents(self, session):
 		while True:
-			events = []
-			async for event in self._getEvents(session, loop):
-				print('\nhandled event\n')
+			async for event in self._getEvents(session):
+				eventJSON = json.loads(event)
+
+				log.info('INCOMING EVENT:')
+				log.debug(f'\n\n{eventJSON}\n\n')
+				self.loop.create_task(self.cli.outputEvent(eventJSON))
 
 		# print(events)
 
@@ -48,3 +50,5 @@ class API:
 
 
 	# def acceptOrDecline(self)
+
+
