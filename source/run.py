@@ -10,18 +10,12 @@ log = logging.getLogger(__name__)
 
 async def run():
 
-	with open ('./secrets/lichess.token', 'r') as f:
-		token = f.read()
-	authHeader = {
-		'Authorization': f'Bearer {token}'
-	}
-
 	async with aiohttp.ClientSession() as session:
 
-		apiGet = APIGet(authHeader, loop)
-		cli = CLI(loop)
+		apiGet = APIGet(session, loop)
+		cli = CLI(session, loop)
 
-		events = loop.create_task(apiGet.handleEvents(session))#listening for events
+		events = loop.create_task(apiGet.handleEvents())#listening for events
 		# await events
 
 		cli.getInput = loop.create_task(cli.input()) #allowing us to enter a command before we get an event
