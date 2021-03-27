@@ -1,20 +1,9 @@
 import logging
 import asyncio
+from .apiBase import APIBase
 
 log = logging.getLogger(__name__)
-class APIPost:
-
-	def __init__(self, session, loop):
-
-		with open ('./secrets/lichess.token', 'r') as f:
-			token = f.read()
-		self.authHeader = {
-		'Authorization': f'Bearer {token}'
-		}
-
-		self.session = session
-		self.loop = loop
-
+class APIPost(APIBase):
 
 	async def sendChallenge(self, opponent, limit, increment):
 		payload = {
