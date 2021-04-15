@@ -16,10 +16,12 @@ log = logging.getLogger(__name__)
 class CLI(threading.Thread):
 
 
-	def __init__(self):
+	def __init__(self, inputQ):
 		
 		Thread.__init__(self, name='CLI')
 		self.cmdDict = {cls.__name__: cls for cls in BaseUserCmd.__subclasses__()}
+		self._return = None
+		self.inputQ = inputQ
 		# self.extraCmdParams = [self.loop, self.session]
 		# self.cmdExtraDelims = ['+']
 		# self.eventActing = False
@@ -27,13 +29,21 @@ class CLI(threading.Thread):
 
 	def run(self):
 		while True:
-			time.sleep(1)
+			time.sleep(0.1)
 			inputText = str(input('> '))
 			if not inputText:
 				continue
 			valid, cmdCls, cmdParams = self.verifyCommand(inputText)
 			if valid:
-				CmdHandler.fromUser(cmdCls, cmdParams).run()
+				# self._return = [cmdCls, cmdParams]
+				self.inputQ.put(['UserCmd', cmdCls, cmdParams])
+
+			else:
+				continue
+
+	# def join(self, *args):
+	# 	Thread.join(self, *args)
+	# 	return self._return
 				
 
 	def verifyCommand(self, cmdText):
@@ -54,11 +64,10 @@ class CLI(threading.Thread):
 				return True, cmdCls, cmdParams
 			else:
 				print('Invalid Parameters. Type "help" to see the parameters for each command')
-				self.run()
-				return False
+				return False, None, None
 		else:
 			print('Invalid Command. Type "help" to see the possible commands')
-			return False
+			return False, None, None
 
 	
 

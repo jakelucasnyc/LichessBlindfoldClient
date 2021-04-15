@@ -1,20 +1,24 @@
 import logging
 import asyncio
 from .apiBase import APIBase
+import requests
 
 log = logging.getLogger(__name__)
 class APIPost(APIBase):
 
-	async def sendChallenge(self, opponent, limit, increment):
+	def sendChallenge(self, opponent, limit, increment):
 		payload = {
 			'clock.limit': limit,
 			'clock.increment': increment
 
 		}
 
-		async with self.session.post(f'https://lichess.org/api/challenge/{opponent}', json=payload, headers=self.authHeader)as response:
-			if response.status == 200:
-				log.info(f'Challenge Sent to {opponent}')
+		with requests.Session() as s:
 
-			log.debug(await response.json())
+			response = s.post(f'https://lichess.org/api/challenge/{opponent}', data=payload, headers=self.authHeader)
+
+			if response.status_code == 200:
+				log.debug(f'Challenge Sent to {opponent}')
+
+			log.debug(response.json())
 		

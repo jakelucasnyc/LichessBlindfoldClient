@@ -15,25 +15,32 @@ class CmdHandler:
 
 	def run(self):
 
+		cmdWithParams = self.cmdCls(*self.cmdParams)
 		#print aftr the input line
-		if self.cmdCls.visible and issubclass(self.cmdCls, BaseBackendCmd):
+		if cmdWithParams.visible and issubclass(self.cmdCls, BaseBackendCmd):
+			# print('backendcmd?')
 			print('')
 
-		if not self.cmdCls.asyn:
+		if not cmdWithParams.asyn:
+
+			#if the command is a thread
 			if issubclass(self.cmdCls, Thread):
-				t = self.cmdCls(*self.cmdParams)
-				t.start()
+				cmdWithParams.start()
 				log.debug('Cmd Thread Started')
-				if self.cmdCls.joinable:
-					t.join()
+				if cmdWithParams.joinable:
+					cmdWithParams.join()
 					log.debug('Cmd Joined')
 
-		if self.cmdCls.asyn:
-			asyncio.run_coroutinue_threadsafe(self.cmdCls(*self.cmdParams).run())
-			log.debug('Cmd Coroutine Ran')
+			#if the command isn't a thread.
+			else:
+				cmdWithParams.run()
+
+		if cmdWithParams.asyn:
+			asyncio.run_coroutine_threadsafe(cmdWithParams.run())
+			log.debug('Cmd Coroutine Run')
 
 		#give the illusion that the input function has been called again
-		if self.cmdCls.visible and issubclass(self.cmdCls, BaseBackendCmd):
+		if cmdWithParams.visible and issubclass(self.cmdCls, BaseBackendCmd):
 			print('> ', end='', flush=True)
 
 	@staticmethod

@@ -5,13 +5,16 @@ import json
 # from play import Play
 from .apiBase import APIBase
 from cmdHandler import CmdHandler
+from threading import Thread
+import requests
 
 log = logging.getLogger(__name__)
 class APIGetStream(APIBase):
 
-	def __init__(self):
+	def __init__(self, inputQ):
 		super().__init__()
 		self.timeout = aiohttp.ClientTimeout(total=None)
+		self.inputQ = inputQ
 
 	async def _getEvents(self):
 		log.info('Listening For Incoming Events')
@@ -29,16 +32,13 @@ class APIGetStream(APIBase):
 
 	async def handleEvents(self):
 		while True:
+			print('in handleEvents')
 			async for event in self._getEvents():
 				eventJSON = json.loads(event)
 
 				log.debug(f'\n\n{eventJSON}\n\n')
-				CmdHandler.fromBackend('outputEvent', [eventJSON]).run()
 				
-
-				if eventJSON['type'] == 'gameStarted':
-					return
-
+				self.inputQ.put(['BackendCmd', 'outputEvent', [eventJSON]])
 		# print(events)
 	#GET
 	# async def getAccount(self):
@@ -55,3 +55,27 @@ class APIGetStream(APIBase):
 	# def acceptOrDecline(self)
 
 
+class APIGetEvents(APIBase, Thread):
+
+	def __init__(self, inputQ):
+		APIBase.__init__(self)
+		Thread.__init__(self)
+		self.timeout = aiohttp.ClientTimeout(total=None)
+		self.inputQ = inputQ
+
+
+	def _getEvents(self):
+		with requests.Session() as s:
+			response = s.get('https://lichess.org/api/stream/event', headers=self.authHeader, stream=True)
+			log.info('Listening for Incoming Events')
+			for line in response.iter_lines():
+
+				#filtering out keep-alive b"\n" responses
+				if line:
+					eventJSON = json.loads(line.decode('utf-8'))
+					self.inputQ.put(['BackendCmd', 'outputEvent', [eventJSON]])
+
+
+
+	def run(self):
+		self._getEvents()

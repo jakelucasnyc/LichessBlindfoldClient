@@ -6,6 +6,7 @@ class Parser:
 		self.opponent = opponent
 		self.timeControl = timeControl
 		self.id = details['id']
+		self.destUser = destUser
 
 
 	@classmethod

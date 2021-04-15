@@ -1,11 +1,11 @@
 from .baseCmds import BaseUserCmd
 from threading import Thread
 import datetime
+from api.apiPost import APIPost
 
 class challenge(BaseUserCmd):
 
-	asyn = True
-
+	
 	def __init__(self, opponent, limit, increment):
 		super().__init__()
 		self.opponent = opponent
@@ -13,19 +13,16 @@ class challenge(BaseUserCmd):
 		self.increment = increment
 
 
-	async def run(self):
+	def run(self):
 
 		apiPost = APIPost()
-		await apiPost.sendChallenge(self.opponent, int(self.limit)*60, int(self.increment))
+		apiPost.sendChallenge(self.opponent, int(self.limit)*60, int(self.increment))
 
 
-class time(BaseUserCmd, Thread):
-
-	joinable = True
+class time(BaseUserCmd):
 	
 	def __init__(self):
-		Thread.__init__(self)
-		BaseUserCmd.__init__(self)
+		super().__init__()
 		self.time = datetime.datetime.now()
 
 	def run(self):

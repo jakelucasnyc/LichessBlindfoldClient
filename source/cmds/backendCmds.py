@@ -12,37 +12,56 @@ class outputEvent(BaseBackendCmd, Thread):
 		BaseBackendCmd.__init__(self)
 		Thread.__init__(self)
 		self.eventJSON = eventJSON
+		self.parser = Parser.fromEvent(self.eventJSON)
+		
+		#if the event is being sent from me
+		# if self.parser.opponent['name'] == secrets.USERNAME:
+		# 	outputEvent.visible = False
+		# else:
+		# 	outputEvent.visible = True
 
 	def run(self):
-
-		parser = Parser.fromEvent(self.eventJSON)
 		#if I send anything that comes through as if another person did it:
-		if parser.opponent['name'] == secrets.USERNAME:
-			return
+
+		# if parser.opponent['name'] == secrets.USERNAME:
+		# 	#this is used so that another ">" isn't printed after this is over
+		# 	outputEvent.visible = False
 
 		self.log.info('INCOMING EVENT:')
 
-		if parser.typeName == 'gameStart':
-			print(f'Game Started! GameID: {parser.id}')
+		if self.parser.typeName == 'gameStart':
+			print(f'Game Started! GameID: {self.parser.id}')
 
-		elif parser.typeName == 'gameFinish':
-			print(f'Game Finished! GameID: {parser.id}')
+		elif self.parser.typeName == 'gameFinish':
+			print(f'Game Finished! GameID: {self.parser.id}')
 
-		elif parser.typeName == 'challenge' and parser.opponent['name'] != secrets.USERNAME:
-			
-			if parser.timeControl['type'] == 'unlimited':
-				print(f'{parser.opponent["name"]} has challenged you to an unlimited time game!')
-			if parser.timeControl['type'] == 'clock':
-				print(f'{parser.opponent["name"]} has challenged you to a {parser.timeControl["show"]} game!')
+		#if a challenge was sent or received
+		elif self.parser.typeName == 'challenge':
 
-		elif parser.typeName == 'challengeCanceled':
-			if parser.timeControl['type'] == 'unlimited':
-				print(f'{parser.opponent["name"]} has cancelled their challenge for an unlimited time game.')
-			if parser.timeControl['type'] == 'clock':
-				print(f'{parser.opponent["name"]} has cancelled their challenge for a {parser.timeControl["show"]} game.')
+			#if the user sent the challenge
+			if self.parser.opponent['name'] == secrets.USERNAME:
+
+				if self.parser.timeControl['type'] == 'unlimited':
+					print(f'Challenge for an unlimited time game was successfully sent to {self.parser.destUser["name"]}!')
+				elif self.parser.timeControl['type'] == 'clock':
+					print(f'Challenge for a {self.parser.timeControl["show"]} game was successfully sent to {self.parser.destUser["name"]}!')
+
+			#if the challenge was sent to the user
+			else:
+
+				if self.parser.timeControl['type'] == 'unlimited':
+					print(f'{self.parser.opponent["name"]} has challenged you to an unlimited time game!')
+				elif self.parser.timeControl['type'] == 'clock':
+					print(f'{self.parser.opponent["name"]} has challenged you to a {self.parser.timeControl["show"]} game!')
+
+		elif self.parser.typeName == 'challengeCanceled':
+			if self.parser.timeControl['type'] == 'unlimited':
+				print(f'{self.parser.opponent["name"]} has cancelled their challenge for an unlimited time game.')
+			if self.parser.timeControl['type'] == 'clock':
+				print(f'{self.parser.opponent["name"]} has cancelled their challenge for a {self.parser.timeControl["show"]} game.')
 
 		elif parser.typeName == 'challengeDeclined':
-			print(f'{parser.destUser["name"]} has declined your challenge.')
+			print(f'{self.parser.destUser["name"]} has declined your challenge.')
 
 		else:
 			self.log.error('Invalid typeName')
