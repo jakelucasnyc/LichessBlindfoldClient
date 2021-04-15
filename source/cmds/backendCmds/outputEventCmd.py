@@ -1,8 +1,7 @@
-from .baseCmds import BaseBackendCmd
+from cmds.baseCmds import BaseBackendCmd
 from parse import Parser
 from threading import Thread
 from secrets import secrets
-
 
 class outputEvent(BaseBackendCmd, Thread):
 
@@ -65,4 +64,3 @@ class outputEvent(BaseBackendCmd, Thread):
 
 		else:
 			self.log.error('Invalid typeName')
-

@@ -6,14 +6,14 @@ from cmds.baseCmds import BaseUserCmd
 from inspect import signature
 from secrets import secrets
 import re
-import threading
+from threading import Thread
 from cmdHandler import CmdHandler
 import time
 
 log = logging.getLogger(__name__)
 
 
-class CLI(threading.Thread):
+class CLI(Thread):
 
 
 	def __init__(self, inputQ):
@@ -29,7 +29,7 @@ class CLI(threading.Thread):
 
 	def run(self):
 		while True:
-			time.sleep(0.1)
+			# time.sleep(0.1)
 			inputText = str(input('> '))
 			if not inputText:
 				continue
