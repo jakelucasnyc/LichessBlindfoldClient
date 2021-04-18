@@ -33,13 +33,27 @@ class APIGetEvents(APIBase, Thread):
 				if line:
 					eventJSON = json.loads(line.decode('utf-8'))
 					parser = EventParser.fromJSON(eventJSON)
-					self.inputQ.put({'type': 'BackendCmd', 'cmdName': 'outputEvent', 'cmdParams': [parser]})
+					self.inputQ.put({'type': 'BackendCmd', 
+						             'cmdName': 'outputEvent', 
+						             'cmdParams': [parser]})
 
 					#if a game has started, start the game play process
 					if parser.typeName == 'gameStart':
 						time.sleep(2)
-						self.inputQ.put({'type': 'BackendCmd', 'cmdName': 'streamGameEvents', 'cmdParams': [self.inputQ, parser.id]})
-						# return
+						self.inputQ.put({'type': 'BackendCmd', 
+							             'cmdName': 'streamGameEvents', 
+							             'cmdParams': [self.inputQ, parser.id]})
+						
+					elif parser.typeName == 'challenge':
+						self.inputQ.put({'type': 'BackendCmd',
+										 'cmdName': 'saveChallenge',
+										 'cmdParams': [parser]})
+
+
+					elif parser.typeName == 'challengeCancelled' or parser.typeName == 'challengeDeclined':
+						self.inputQ.put({'type': 'BackendCmd',
+										 'cmdName': 'deleteChallenge',
+										 'cmdParams': [parser.id]})
 
 
 

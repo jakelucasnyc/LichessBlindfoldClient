@@ -1,2 +1,2 @@
 from .eventParse import EventParser
-from .gameEventParse import GameEventParser
+from .gameEventParse import *

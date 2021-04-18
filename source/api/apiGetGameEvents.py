@@ -3,7 +3,7 @@ from .apiBase import APIBase
 import requests
 import logging
 import json
-from parse import GameEventParser
+import parse
 
 
 log = logging.getLogger(__name__)
@@ -30,7 +30,21 @@ class APIGetGameEvents(APIBase, Thread):
 				#filtering out keep-alive b"\n" responses
 				if line:
 					eventJSON = json.loads(line.decode('utf-8'))
-					print(eventJSON)
+
+					if eventJSON['type'] == 'gameFull':
+						parsedData = parse.GameFullParser(eventJSON)
+						self.inputQ.put({
+								
+							})
+
+					elif eventJSON['type'] == 'gameState':
+						parsedData = parse.GameStateParser(eventJSON)
+
+					elif eventJSON['type'] == 'chatLine':
+						parsedData = parse.ChatLineParser(eventJSON)
+
+					else:
+						log.error(f'Unknown Game Event Type: {eventJSON["type"]}')
 					# self.inputQ.put(['BackendCmd', 'outputEvent', [eventJSON]])
 
 	def run(self):

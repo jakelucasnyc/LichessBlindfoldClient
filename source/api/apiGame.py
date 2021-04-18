@@ -1,6 +1,6 @@
 from .apiBase import APIBase
 
-class APIPlay(APIBase):
+class APIGame(APIBase):
 	
 	def __init__(self, gameId):
 		self.gameId = gameId

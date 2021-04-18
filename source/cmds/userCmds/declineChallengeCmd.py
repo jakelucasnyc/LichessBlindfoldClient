@@ -3,10 +3,13 @@ from api.apiPost import APIPost
 
 class declineChallenge(BaseUserCmd):
 
-	def __init__(self, challengeId):
+	objsNeeded = ['APIPost']
+
+	def __init__(self, challengeId, objDict):
 		super().__init__()
 		self.challengeId = challengeId
+		self.objDict = objDict
 
 	def run(self):
 
-		APIPost().declineChallenge(self.challengeId)
+		self.objDict['APIPost'].declineChallenge(self.challengeId)

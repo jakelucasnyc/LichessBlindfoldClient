@@ -18,7 +18,7 @@ class CmdHandler:
 
 		_returnVal = ''
 
-		if 'objDict' in signature(self.cmdCls).parameters:
+		if self.objDict:
 
 			cmdWithParams = self.cmdCls(*self.cmdParams, objDict=self.objDict)
 
@@ -57,10 +57,14 @@ class CmdHandler:
 		return _returnVal
 
 	@staticmethod
-	def findCommand(clsDict, cmdName, cmdParams):
+	def findBackendCommand(clsDict, cmdName, cmdParams):
 		if cmdName in clsDict.keys():
 			cmdCls = clsDict[cmdName]
-			if len(cmdParams) != len(signature(cmdCls).parameters):
+			classParams = signature(cmdCls).parameters
+			classParamsLen = len(classParams)
+			if 'objDict' in classParams:
+				classParamsLen -= 1
+			if len(cmdParams) != classParamsLen:
 				raise Exception(f"Command '{cmdName}' was given incorrect paramters: {cmdParams}")
 			return True, cmdCls, cmdParams
 		else:
@@ -76,12 +80,13 @@ class CmdHandler:
 		clsDict = {c.__name__: c for c in BaseBackendCmd.__subclasses__()}
 		clsDict.update({c.__name__: c for c in BaseUserCmd.__subclasses__()})
 		# print("Keys: "+str(clsDict))
-		valid, cmdCls, cmdParams = CmdHandler.findCommand(clsDict, cmdName, cmdParams)
+		valid, cmdCls, cmdParams = CmdHandler.findBackendCommand(clsDict, cmdName, cmdParams)
 		if valid:
 			log.debug('Valid Backend Command')
 			return cls(cmdCls, cmdParams, objDict)
 		else:
 			raise Exception('Invalid Backend Command')
+
 
 
 

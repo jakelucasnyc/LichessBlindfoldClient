@@ -3,11 +3,18 @@ from api.apiPost import APIPost
 
 class acceptChallenge(BaseUserCmd):
 
-	def __init__(self, challengeId):
+	objsNeeded = ['APIPost', 'APIChallengeData']
+
+	def __init__(self, challengeId, objDict):
 		super().__init__()
 		self.challengeId = challengeId
+		self.objDict = objDict
 
 
 	def run(self):
 
-		APIPost().acceptChallenge(self.challengeId)
+		self.objDict['APIPost'].acceptChallenge(self.challengeId)
+
+	@staticmethod
+	def showHelp():
+		print('acceptChallenge -> challenge_ID')

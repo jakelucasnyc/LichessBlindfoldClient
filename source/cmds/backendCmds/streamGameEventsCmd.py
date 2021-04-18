@@ -3,6 +3,8 @@ from api.apiGetGameEvents import APIGetGameEvents
 
 class streamGameEvents(BaseBackendCmd):
 
+	objsNeeded = ['APIGame']
+
 	def __init__(self, inputQ, gameId):
 		super().__init__()
 		self.inputQ = inputQ
