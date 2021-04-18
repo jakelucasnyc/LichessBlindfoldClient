@@ -5,9 +5,7 @@ class BaseCmd:
 	asyn = False
 	joinable = False
 	visible = True
-
-	def __init__(self):
-		pass
+	objsNeeded = []
 
 class BaseUserCmd(BaseCmd):
 

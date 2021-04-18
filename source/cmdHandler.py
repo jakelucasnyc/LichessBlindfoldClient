@@ -9,16 +9,25 @@ import logging
 log = logging.getLogger(__name__)
 class CmdHandler:
 
-	def __init__(self, cmdCls, cmdParams):
+	def __init__(self, cmdCls, cmdParams, objDict):
 		self.cmdCls = cmdCls
 		self.cmdParams = cmdParams
+		self.objDict = objDict
 
 	def run(self):
 
-		cmdWithParams = self.cmdCls(*self.cmdParams)
+		_returnVal = ''
+
+		if 'objDict' in signature(self.cmdCls).parameters:
+
+			cmdWithParams = self.cmdCls(*self.cmdParams, objDict=self.objDict)
+
+		else:
+			cmdWithParams = self.cmdCls(*self.cmdParams)
+
 		#print aftr the input line
 		if cmdWithParams.visible and issubclass(self.cmdCls, BaseBackendCmd):
-			# print('backendcmd?')
+			# print('inside first visible if check')
 			print('')
 
 		if not cmdWithParams.asyn:
@@ -33,7 +42,7 @@ class CmdHandler:
 
 			#if the command isn't a thread.
 			else:
-				cmdWithParams.run()
+				_returnVal = cmdWithParams.run()
 
 		if cmdWithParams.asyn:
 			asyncio.run_coroutine_threadsafe(cmdWithParams.run())
@@ -41,7 +50,11 @@ class CmdHandler:
 
 		#give the illusion that the input function has been called again
 		if cmdWithParams.visible and issubclass(self.cmdCls, BaseBackendCmd):
+
+			# print('inside second visible if check')
 			print('> ', end='', flush=True)
+
+		return _returnVal
 
 	@staticmethod
 	def findCommand(clsDict, cmdName, cmdParams):
@@ -55,18 +68,18 @@ class CmdHandler:
 		
 
 	@classmethod
-	def fromUser(cls, cmdCls, cmdParams):
-		return cls(cmdCls, cmdParams)
+	def fromUser(cls, cmdCls, cmdParams, objDict):
+		return cls(cmdCls, cmdParams, objDict)
 
 	@classmethod
-	def fromBackend(cls, cmdName, cmdParams):
+	def fromBackend(cls, cmdName, cmdParams, objDict):
 		clsDict = {c.__name__: c for c in BaseBackendCmd.__subclasses__()}
 		clsDict.update({c.__name__: c for c in BaseUserCmd.__subclasses__()})
 		# print("Keys: "+str(clsDict))
 		valid, cmdCls, cmdParams = CmdHandler.findCommand(clsDict, cmdName, cmdParams)
 		if valid:
 			log.debug('Valid Backend Command')
-			return cls(cmdCls, cmdParams)
+			return cls(cmdCls, cmdParams, objDict)
 		else:
 			raise Exception('Invalid Backend Command')
 

@@ -1,6 +1,4 @@
-from parse import Parser
 import logging
-import asyncio
 from cmds.userCmds import *
 from cmds.baseCmds import BaseUserCmd
 from inspect import signature
@@ -29,14 +27,19 @@ class CLI(Thread):
 
 	def run(self):
 		while True:
-			# time.sleep(0.1)
+			time.sleep(0.001)
 			inputText = str(input('> '))
 			if not inputText:
 				continue
-			valid, cmdCls, cmdParams = self.verifyCommand(inputText)
+			valid, cmdCls, cmdParams, objsNeeded = self.verifyCommand(inputText)
 			if valid:
 				# self._return = [cmdCls, cmdParams]
-				self.inputQ.put(['UserCmd', cmdCls, cmdParams])
+				self.inputQ.put({
+					'type': 'UserCmd', 
+					'cmdCls': cmdCls, 
+					'cmdParams': cmdParams, 
+					'objs': objsNeeded
+				})
 
 			else:
 				continue
@@ -60,14 +63,20 @@ class CLI(Thread):
 
 			cmdCls = self.cmdDict[cmdWord]
 			#if the number of words in the command - 1 (the initial command) == the number of parameters for the __init__ method of the command class: 
-			if len(cmdParams) == len(signature(cmdCls).parameters):
-				return True, cmdCls, cmdParams
+			classParams = signature(cmdCls).parameters
+
+			if (len(cmdParams) == len(classParams) and not 'objDict' in classParams) or (len(cmdParams) == len(classParams)-1 and 'objDict' in classParams) :
+
+				if 'objDict' in classParams:
+					return True, cmdCls, cmdParams, cmdCls.objsNeeded #bool, class, list, list
+				else:
+					return True, cmdCls, cmdParams, []
 			else:
 				print('Invalid Parameters. Type "help" to see the parameters for each command')
-				return False, None, None
+				return False, None, None, None
 		else:
 			print('Invalid Command. Type "help" to see the possible commands')
-			return False, None, None
+			return False, None, None, None
 
 	
 
