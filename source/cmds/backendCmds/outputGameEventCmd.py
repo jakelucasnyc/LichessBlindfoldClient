@@ -27,3 +27,7 @@ class outputGameEvent(BaseBackendCmd):
 			print(f"Game Over! Outcome: {self.dataDict['outcome']}.")
 			if self.dataDict['winner'] is not None:
 				print(f'Winner: {self.dataDict["winner"]}')
+
+		elif self.dataDict['type'] == 'drawOffer':
+
+			print(f"{self.dataDict['drawer']} offered a draw.")

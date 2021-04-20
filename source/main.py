@@ -44,6 +44,7 @@ async def main():
 		# print('qEntry', qEntry)
 		#send the qEntry to the command handler
 		objsSent = {}
+		cmdResult = ''
 		if qEntry['type'] == 'BackendCmd':
 
 
@@ -64,11 +65,8 @@ async def main():
 		elif qEntry['type'] == 'globalObjAdd':
 			globalObjs.update({qEntry['cls'].__name__: qEntry['cls'](**qEntry['clsParams'])})
 
-		# elif qEntry[0] == 'globalObj':
-		# 	if qEntry[1] in globalObjs.keys():
-		# 		pass
-		# 	else:
-		# 		pass
+		elif qEntry['type'] == 'globalObjDel':
+			globalObjs.pop(qEntry['cls'].__name__)
 
 
 		#example cmdResult = [('CRUD', 'obj', 'key', 'value'), ('CRUD', 'obj', 'key', 'value')]

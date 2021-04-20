@@ -43,6 +43,9 @@ class APIGetGameEvents(APIBase, Thread):
 						})
 
 					elif eventJSON['type'] == 'gameState':
+
+						# print(eventJSON)
+						
 						parsedData = parse.GameStateParser(eventJSON)
 						outputData = self.game.updateFromParser(parsedData)
 						self.inputQ.put({
@@ -50,6 +53,9 @@ class APIGetGameEvents(APIBase, Thread):
 							'cmdName': 'outputGameEvent',
 							'cmdParams': [outputData]
 						})
+
+						if 'winner' in outputData.keys():
+							return
 
 
 					elif eventJSON['type'] == 'chatLine':

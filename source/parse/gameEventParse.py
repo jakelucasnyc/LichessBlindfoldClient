@@ -20,6 +20,8 @@ class GameStateParser:
 		self.whiteTime = eventJSON['wtime']
 		self.blackTime = eventJSON['btime']
 		self.gameStatus = eventJSON['status']
+		self.wdraw = eventJSON['wdraw']
+		self.bdraw = eventJSON['bdraw']
 		self.winner = None
 		if 'winner' in eventJSON.keys():
 			self.winner = eventJSON['winner']

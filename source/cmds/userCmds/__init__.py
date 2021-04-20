@@ -5,6 +5,9 @@ from .acceptChallengeCmd import acceptChallenge
 from .declineChallengeCmd import declineChallenge
 from .moveCmd import move
 from .resignCmd import resign
+from .drawCmd import draw
+from .declineDrawCmd import declineDraw
+from .abortCmd import abort
 
 class help(BaseUserCmd):
 
