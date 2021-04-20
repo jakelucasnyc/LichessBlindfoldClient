@@ -1,7 +1,7 @@
 from cmds.baseCmds import *
 from cmds.userCmds import *
 from cmds.backendCmds import *
-from inspect import signature
+from inspect import signature, Parameter
 from threading import Thread
 import asyncio
 import logging
@@ -18,12 +18,19 @@ class CmdHandler:
 
 		_returnVal = ''
 
-		if self.objDict:
+		try:
+			if self.objDict:
 
-			cmdWithParams = self.cmdCls(*self.cmdParams, objDict=self.objDict)
+				cmdWithParams = self.cmdCls(*self.cmdParams, objDict=self.objDict)
 
-		else:
-			cmdWithParams = self.cmdCls(*self.cmdParams)
+			else:
+				cmdWithParams = self.cmdCls(*self.cmdParams)
+
+		except Exception as e:
+			print(e)
+			print('Command Being Run: ', self.cmdCls.__name__)
+			print('Paramters Given: ', self.cmdParams)
+			return
 
 		#print aftr the input line
 		if cmdWithParams.visible and issubclass(self.cmdCls, BaseBackendCmd):

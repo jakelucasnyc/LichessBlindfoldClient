@@ -6,15 +6,17 @@ import json
 import parse
 
 
+
 log = logging.getLogger(__name__)
 
 class APIGetGameEvents(APIBase, Thread):
 
-	def __init__(self, inputQ, gameId):
+	def __init__(self, inputQ, gameId, gameObj):
 		APIBase.__init__(self)
 		Thread.__init__(self)
 		self.inputQ = inputQ
 		self.gameId = gameId
+		self.game = gameObj
 
 	def _getGameEvents(self):
 		with requests.Session() as s:
@@ -33,12 +35,22 @@ class APIGetGameEvents(APIBase, Thread):
 
 					if eventJSON['type'] == 'gameFull':
 						parsedData = parse.GameFullParser(eventJSON)
+						outputData = self.game.initializeFromParser(parsedData)
 						self.inputQ.put({
-								
-							})
+							'type': 'BackendCmd',
+							'cmdName': 'outputGameEvent',
+							'cmdParams': [outputData]
+						})
 
 					elif eventJSON['type'] == 'gameState':
 						parsedData = parse.GameStateParser(eventJSON)
+						outputData = self.game.updateFromParser(parsedData)
+						self.inputQ.put({
+							'type': 'BackendCmd',
+							'cmdName': 'outputGameEvent',
+							'cmdParams': [outputData]
+						})
+
 
 					elif eventJSON['type'] == 'chatLine':
 						parsedData = parse.ChatLineParser(eventJSON)

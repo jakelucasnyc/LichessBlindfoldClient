@@ -3,19 +3,19 @@ import chess
 class GameFullParser:
 
 	def __init__(self, eventJSON):
-		self.typeName = eventJSON['type']
+
 		self.whiteName = eventJSON['white']['name']
 		self.blackName = eventJSON['black']['name']
-		self.gameId = eventJSON['id']
 		self.timeLimit = eventJSON['clock']['initial']
 		self.timeIncrement = eventJSON['clock']['increment']
+		self.moves = eventJSON['state']['moves']
 
 		
 
 class GameStateParser:
 
 	def __init__(self, eventJSON):
-		self.typeName = eventJSON['type']
+
 		self.moves = eventJSON['moves']
 		self.whiteTime = eventJSON['wtime']
 		self.blackTime = eventJSON['btime']
@@ -29,6 +29,7 @@ class GameStateParser:
 class ChatLineParser:
 
 	def __init__(self, eventJSON):
+
 		self.typeName = eventJSON['type']
 		self.username = eventJSON['username']
 		self.message = eventJSON['text']

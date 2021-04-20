@@ -12,7 +12,7 @@ class APIChallengeData(APIBase):
 	def addChallengeEntry(self, dataDict):
 
 		self.challengeList.append(dataDict)
-		print(self.challengeList)
+		# print(self.challengeList)
 
 	def deleteChallengeEntry(self, challengeId):
 

@@ -36,9 +36,10 @@ async def main():
 
 	while True:
 		
-		#example return = ['UserCmd', cmdCls, cmdParams, globalObjList] or ['BackendCmd', 'cmdName', cmdParams, globalObjList] or ['globalObj', 'clsName', 'methodName', paramList]
+		
 		#example return = {'type': 'UserCmd', 'cmdCls': 'cmdCls', 'cmdParams': cmdParams, 'objs': globalObjList}
 						# {'type': 'BackendCmd', 'cmdName': 'name', 'cmdParams': cmdParams, 'objs': globalObjList}
+						# {'type': 'globalObjAdd', 'cls': cls, 'clsParams': clsParamsDict}
 		qEntry = inputQ.get()
 		# print('qEntry', qEntry)
 		#send the qEntry to the command handler
@@ -60,6 +61,8 @@ async def main():
 
 			cmdResult = CmdHandler.fromUser(cmdCls=qEntry['cmdCls'], cmdParams=qEntry['cmdParams'], objDict=objsSent).run()
 
+		elif qEntry['type'] == 'globalObjAdd':
+			globalObjs.update({qEntry['cls'].__name__: qEntry['cls'](**qEntry['clsParams'])})
 
 		# elif qEntry[0] == 'globalObj':
 		# 	if qEntry[1] in globalObjs.keys():

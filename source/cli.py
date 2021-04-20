@@ -55,10 +55,7 @@ class CLI(Thread):
 			
 		cmdWord = cmdWords[0]
 		cmdParams = cmdWords[1:]
-			#inserting extra command parameters in reverse order so that they end up in the correct order within the list
-		# for param in reversed(self.extraCmdParams):
-		# 	cmdParams.insert(0, param) 
-		#if the first word in the command is a valid command:
+
 		if cmdWord in self.cmdDict.keys():
 
 			cmdCls = self.cmdDict[cmdWord]

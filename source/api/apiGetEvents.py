@@ -6,6 +6,7 @@ from threading import Thread
 import requests
 from parse import EventParser
 import time
+from api.apiGame import APIGame
 
 log = logging.getLogger(__name__)
 
@@ -14,7 +15,7 @@ class APIGetEvents(APIBase, Thread):
 
 	def __init__(self, inputQ):
 		APIBase.__init__(self)
-		Thread.__init__(self)
+		Thread.__init__(self, daemon=True)
 		self.inputQ = inputQ
 
 
@@ -39,10 +40,19 @@ class APIGetEvents(APIBase, Thread):
 
 					#if a game has started, start the game play process
 					if parser.typeName == 'gameStart':
+						self.inputQ.put({
+							'type': 'globalObjAdd',
+							'cls': APIGame,
+							'clsParams': {'gameId': parser.id}
+						})
+
 						time.sleep(2)
-						self.inputQ.put({'type': 'BackendCmd', 
-							             'cmdName': 'streamGameEvents', 
-							             'cmdParams': [self.inputQ, parser.id]})
+
+						self.inputQ.put({
+							'type': 'BackendCmd', 
+							'cmdName': 'streamGameEvents', 
+							'cmdParams': [self.inputQ, parser.id]
+						})
 						
 					elif parser.typeName == 'challenge':
 						self.inputQ.put({'type': 'BackendCmd',
