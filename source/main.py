@@ -4,7 +4,6 @@ from api.apiGame import APIGame
 from api.apiPost import APIPost
 from api.apiChallengeData import APIChallengeData
 import asyncio
-import aiohttp
 import logging
 from cli import CLI
 from cmdHandler import CmdHandler
