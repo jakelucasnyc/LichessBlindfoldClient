@@ -22,6 +22,7 @@ async def main():
 	#initializing objects
 	inputQ = Queue()
 	globalObjs = {
+		'inputQ': inputQ,
 		'APIPost': APIPost(),
 		'APIChallengeData': APIChallengeData(),
 		'APIGameData': APIGameData()

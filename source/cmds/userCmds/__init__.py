@@ -11,6 +11,7 @@ from .abortCmd import abort
 from .testCmd import test
 from .movesCmd import moves
 from .analyzeCmd import analyze
+from .seekCmd import seek
 
 class help(BaseUserCmd):
 

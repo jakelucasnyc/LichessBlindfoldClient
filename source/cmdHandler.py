@@ -51,7 +51,7 @@ class CmdHandler:
 			else:
 				_returnVal = cmdWithParams.run()
 
-		if cmdWithParams.asyn:
+		elif cmdWithParams.asyn:
 			asyncio.run_coroutine_threadsafe(cmdWithParams.run())
 			log.debug('Cmd Coroutine Run')
 
