@@ -3,6 +3,7 @@ from api.apiGetGameEvents import APIGetGameEvents
 from api.apiGame import APIGame
 from api.apiPost import APIPost
 from api.apiChallengeData import APIChallengeData
+from api.apiGameData import APIGameData
 import asyncio
 import logging
 from cli import CLI
@@ -10,6 +11,7 @@ from cmdHandler import CmdHandler
 import threading
 from queue import Queue
 import time
+from missingObjNotifier import notify
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -21,7 +23,8 @@ async def main():
 	inputQ = Queue()
 	globalObjs = {
 		'APIPost': APIPost(),
-		'APIChallengeData': APIChallengeData()
+		'APIChallengeData': APIChallengeData(),
+		'APIGameData': APIGameData()
 	}
 	# outputQ = Queue()
 	# apiGetStream = APIGetStream(inputQ)
@@ -57,9 +60,17 @@ async def main():
 		elif qEntry['type'] == 'UserCmd':
 
 			#this returns an empty dict if the objsNeeded list is empty or has no clsName in common with the globalObjs dict
+
 			objsSent = {clsName: inst for clsName, inst in globalObjs.items() if clsName in qEntry['cmdCls'].objsNeeded}
 
-			cmdResult = CmdHandler.fromUser(cmdCls=qEntry['cmdCls'], cmdParams=qEntry['cmdParams'], objDict=objsSent).run()
+			if len(objsSent) == len(qEntry['cmdCls'].objsNeeded):
+
+				cmdResult = CmdHandler.fromUser(cmdCls=qEntry['cmdCls'], cmdParams=qEntry['cmdParams'], objDict=objsSent).run()
+
+			else:
+				missingObjs = [clsName for clsName in qEntry['cmdCls'].objsNeeded if clsName not in globalObjs.keys()]
+
+				notify(missingObjs)
 
 		elif qEntry['type'] == 'globalObjAdd':
 			globalObjs.update({qEntry['cls'].__name__: qEntry['cls'](**qEntry['clsParams'])})
@@ -68,17 +79,6 @@ async def main():
 			globalObjs.pop(qEntry['cls'].__name__)
 
 
-		#example cmdResult = [('CRUD', 'obj', 'key', 'value'), ('CRUD', 'obj', 'key', 'value')]
-		if not cmdResult:
-			continue
-
-		#figure out what to do with the return values of the command
-		elif cmdResult[0] == 'APIPlay':
-			pass
-
-
-
-	# await asyncio.gather(events)
 
 
 

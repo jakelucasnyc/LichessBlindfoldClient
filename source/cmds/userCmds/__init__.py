@@ -8,6 +8,9 @@ from .resignCmd import resign
 from .drawCmd import draw
 from .declineDrawCmd import declineDraw
 from .abortCmd import abort
+from .testCmd import test
+from .movesCmd import moves
+from .analyzeCmd import analyze
 
 class help(BaseUserCmd):
 

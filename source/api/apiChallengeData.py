@@ -3,10 +3,9 @@ from api.apiBase import APIBase
 
 
 log = logging.getLogger(__name__)
-class APIChallengeData(APIBase):
+class APIChallengeData:
 
 	def __init__(self):
-		super().__init__()
 		self.challengeList = []
 
 	def addChallengeEntry(self, dataDict):
