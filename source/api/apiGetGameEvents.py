@@ -55,6 +55,12 @@ class APIGetGameEvents(APIBase, Thread):
 						})
 
 						if 'winner' in outputData.keys():
+							gameDataDict = self.game.getGameData()
+							self.inputQ.put({
+								'type': 'BackendCmd',
+								'cmdName': 'saveGameData',
+								'cmdParams': [gameDataDict]
+							})
 							return
 
 

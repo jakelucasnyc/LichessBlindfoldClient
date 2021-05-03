@@ -16,11 +16,24 @@ class APIGame(APIBase):
 		self.blackSeconds = 0
 		self.lastUpdated = time.time()
 		self.lock = threading.Lock()
+		self.white = None
+		self.black = None
+		self.outcome = None
+		self.sanMoveList = []
 		
 
 		#after a draw offer is sent, it remains for 2 moves and this gets in the way of my logging logic.
 		self.alreadyOfferedDraw = False
 
+	def getGameData(self):
+		returnDict = {
+			'gameId': self.gameId,
+			'white': self.white,
+			'black': self.black,
+			'result': self.outcome
+		}
+
+		return returnDict
 
 	def initializeFromParser(self, parser):
 		with self.lock:
@@ -34,7 +47,8 @@ class APIGame(APIBase):
 
 			moves = parser.moves.split()
 			for move in moves:
-				self.board.push_uci(move)
+				self._apiParseUciToSan(move)
+
 
 			# print('MOVE STACK:', self.board.move_stack)
 
@@ -74,16 +88,19 @@ class APIGame(APIBase):
 					#capitalizing which side won
 
 					if parser.winner is not None:
-						winnerList = list(parser.winner)
-						winnerList[0] = winnerList[0].upper()
-						capitalWinner = ''.join(winnerList)
+						if parser.winner == 'white':
+							winner = f'{self.white} (White)'
+
+						elif parser.winner == 'black':
+							winner = f'{self.black} (Black)'
+					
 					else:
-						capitalWinner = None
+						winner = None
 
 					returnDict = {
 						'type': 'gameOver',
 						'outcome': capitalOutcome,
-						'winner': capitalWinner 
+						'winner': winner 
 					}
 
 
@@ -154,6 +171,7 @@ class APIGame(APIBase):
 		moveObj = self.board.parse_uci(moveStr)
 		sanStr = self.board.san(moveObj)
 		self.board.push(moveObj)
+		self.sanMoveList.append(sanStr)
 		return sanStr
 
 	def makeMove(self, moveStr):
@@ -184,7 +202,7 @@ class APIGame(APIBase):
 			thinker = self._getThinkingSide()
 
 			#time doesn't start until both players have moved
-			
+
 			if len(self.board.move_stack) >= 2:
 				if thinker == 'White':
 					whiteSeconds = self.whiteSeconds - sinceUpdate
